@@ -44,7 +44,7 @@ struct TinyCounterWidgetEntryView: View {
             
             // Text overlay
             if let cd = entry.countdown {
-                Text(shortTime(to: cd.targetDate))
+                Text(fullTime(to: cd.targetDate))
                     .font(.subheadline.monospacedDigit()) // Larger font for readability
                     .foregroundColor(.white)
                     .minimumScaleFactor(0.7) // Allow less shrinking
@@ -172,7 +172,7 @@ struct TinyCounterWidgetEntryView: View {
     private func fullTime(to target: Date) -> String {
         let i = max(0, Int(target.timeIntervalSince(Date())))
         let d = i / 86400, h = (i / 3600) % 24, m = (i / 60) % 60, s = i % 60
-        return String(format: "%02dd %02dh %02dm %02ds", d, h, m, s)
+        return String(format: "%02dd %02dh %02dm", d, h, m)
     }
     private func days(to target: Date) -> Int { max(0, Int(target.timeIntervalSince(Date()))) / 86400 }
     private func hours(to target: Date) -> Int { (max(0, Int(target.timeIntervalSince(Date()))) / 3600) % 24 }

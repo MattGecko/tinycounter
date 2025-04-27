@@ -25,13 +25,18 @@ struct ContentView: View {
               religious: false,
               interval: 1)
     
-    @Environment(\.colorScheme) private var colorScheme
+  //  @Environment(\.colorScheme) private var colorScheme
 
     func colorForTitle() -> Color {
-        if colorScheme == .dark {
-            return .white
+        let background = themeManager.selectedTheme.background
+        let brightness = (background.red * 299 + background.green * 587 + background.blue * 114) / 1000
+
+        if brightness > 0.7 {
+            // Light background (e.g., white, lemon yellow)
+            return .black
         } else {
-            return themeManager.selectedTheme.text.swiftUIColor
+            // Dark background (e.g., midnight, galaxy)
+            return .white
         }
     }
 

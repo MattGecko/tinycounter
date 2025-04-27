@@ -90,7 +90,7 @@ struct SavedCountersView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("Upgrade to Premium to save more than 2 counters or configure advanced options.")
+                Text("Upgrade to Premium to save more than 2 counters, add preset counters or configure advanced options.")
             }
         }
         .actionSheet(isPresented: $showPresetPicker) {
@@ -98,12 +98,19 @@ struct SavedCountersView: View {
                 title: Text("Choose a Preset"),
                 buttons:
                     presetCounters.map { preset in
-                        .default(Text(preset.title)) {
-                            addPreset(preset)
+                        .default(
+                            Text(store.isPremium ? preset.title : "\(preset.title) 🔒")
+                        ) {
+                            if store.isPremium {
+                                addPreset(preset)
+                            } else {
+                                showLimitAlert = true
+                            }
                         }
                     } + [.cancel()]
             )
         }
+
         .sheet(item: $selectedCounterForConfig) { counter in
             CounterConfigurationView(counter: binding(for: counter))
         }
@@ -126,10 +133,11 @@ struct SavedCountersView: View {
     }
 
     func addPreset(_ preset: CounterModel) {
-        guard store.isPremium || counters.count < 2 else {
+        guard store.isPremium else {
             showLimitAlert = true
             return
         }
+        
         var copy = preset
         copy.id = UUID()
         copy.createdDate = Date()
@@ -139,17 +147,22 @@ struct SavedCountersView: View {
         selectedTab = 0
     }
 
+
     func addNewCounter() {
-        guard store.isPremium || counters.count < 2 else {
+        let savedCount = counters.count // 👈 use counters not loadSavedCounters()
+        
+        guard store.isPremium || savedCount < 2 else {
             showLimitAlert = true
             return
         }
+        
         let new = CounterModel(id: UUID(), title: "New Counter", count: 0, totalTaps: 0, createdDate: Date(), religious: false, interval: 1)
         counters.append(new)
         save()
         selectedCounterId = new.id.uuidString
         selectedTab = 0
     }
+
 
     func load() {
         if let defaults = UserDefaults(suiteName: "group.angelapps.tinycounter"),
